@@ -1,0 +1,57 @@
+name: Test File Permissions in Aclocal Directory
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  test-permissions:
+    runs-on: ubuntu-22.04 # or ubuntu-24.04 if you want to test the newer version
+
+    steps:
+      # Step 1: Check out the repository code (if needed)
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Set up environment (update package lists)
+      - name: Set up environment
+        run: sudo apt update
+
+      # Step 3: Install required package (example: automake or aclocal)
+      - name: Install automake (which includes aclocal)
+        run: sudo apt install -y automake
+
+      # Step 4: Check permissions in /usr/share/aclocal
+      - name: Check file permissions in /usr/share/aclocal
+        run: |
+          echo "Listing files and permissions in /usr/share/aclocal"
+          ls -l /usr/share/aclocal
+
+      # Step 5: Copy files from /usr/share/aclocal to build directory
+      - name: Copy files to build directory
+        run: |
+          mkdir -p build
+          cp /usr/share/aclocal/* build/
+          echo "Copied files to build directory"
+          ls -l build/
+
+      # Step 6: Set restrictive umask and check if permissions are preserved
+      - name: Set umask and check permissions
+        run: |
+          umask 022
+          echo "Checking permissions after setting umask"
+          ls -l build/
+
+      # Step 7: Create a tarball of the build directory
+      - name: Create tarball of build directory
+        run: |
+          tar -czf build.tar.gz -C build .
+          echo "Created tarball"
+
+      # Step 8: Check file permissions inside the tarball
+      - name: Check permissions inside tarball
+        run: |
+          mkdir -p extract
+          tar -xzf build.tar.gz -C extract
+          echo "Checking permissions inside tarball"
+          ls -l extract/
