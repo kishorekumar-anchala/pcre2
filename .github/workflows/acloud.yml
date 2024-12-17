@@ -6,7 +6,7 @@ on:
 
 jobs:
   test-permissions:
-    runs-on: ubuntu-22.04 # or ubuntu-24.04 if you want to test the newer version
+    runs-on: ubuntu-24.04 # or ubuntu-24.04 if you want to test the newer version
 
     steps:
       # Step 1: Check out the repository code (if needed)
